@@ -26,6 +26,7 @@
     painMultiplier: 1.5
   - type: Woundable
     canBleed: false
+  - type: RobotSurgery # goob edit - different surgeries for ipcs/cybernetics
 
 - type: entity
   parent: [ CyberneticPartBase, BaseLeftArm ]

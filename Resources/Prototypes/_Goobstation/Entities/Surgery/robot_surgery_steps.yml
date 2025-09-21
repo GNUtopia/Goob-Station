@@ -1,0 +1,550 @@
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepUnlockPanel
+  name: Unlock maintenance panel
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Scalpel
+    add:
+    - type: IncisionOpen
+    duration: 2
+  - type: Sprite
+    sprite: Objects/Tools/screwdriver.rsi
+    state: screwdriver-map
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepDisplaceWiring
+  name: Displace wiring
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Hemostat
+    add:
+    - type: BleedersClamped
+    duration: 4
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/hemostat.rsi
+    state: hemostat
+  - type: SurgeryRepeatableStep
+  - type: SurgeryBleedsTreatmentStep
+    amount: 2
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepCloseBloodOutputs
+  name: Stitch up destroyed tissues
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Stitches
+    remove:
+    - type: BleedersClamped
+    duration: 5
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/stitches.rsi
+    state: stitches
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepOpenPanel
+  name: Open maintenance panel
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Retractor
+    add:
+    - type: SkinRetracted
+    duration: 2
+  - type: Sprite
+    sprite: Objects/Tools/crowbar.rsi
+    state: icon
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepRepairDismembermentWires
+  name: Repair torn wiring
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Scalpel
+    add:
+    - type: BodyPartSawed
+    duration: 4
+  - type: Sprite
+    sprite: Objects/Tools/wirecutters.rsi
+    state: cutters-map
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepSawBones
+  name: Saw through bones
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: BoneSaw
+    add:
+    - type: RibcageSawed
+    duration: 4
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/circular-saw.rsi
+    state: circular-saw
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepRemoveLeftoverBones
+  name: Remove leftover structure
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: BoneSaw
+    add:
+    - type: RibcageOpen
+    duration: 5
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/circular-saw.rsi
+    state: circular-saw
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepMendBones
+  name: Repair structure
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: BoneGel
+    duration: 7
+  - type: SurgeryAffixPartStep
+  - type: Sprite
+    sprite: Objects/Tools/welder.rsi
+    state: icon
+  - type: SurgeryRepeatableStep
+  - type: SurgeryTraumaTreatmentStep
+    traumaType: BoneDamage
+    amount: 17
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepHealOrgans
+  name: Repair components
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Tending
+    duration: 7
+  - type: SurgeryAffixOrganStep
+  - type: Sprite
+    sprite: Objects/Tools/welder.rsi
+    state: icon
+  - type: SurgeryRepeatableStep
+  - type: SurgeryTraumaTreatmentStep
+    traumaType: OrganDamage
+    amount: 17
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepPriseOpenBones
+  name: Remove internal shielding
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Retractor
+    add:
+    - type: RibcageOpen
+    duration: 2
+  - type: Sprite
+    sprite: Objects/Tools/crowbar.rsi
+    state: icon
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepCloseBones
+  name: Replace internal shielding
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Retractor
+    remove:
+    - type: RibcageOpen
+    duration: 2
+  - type: Sprite
+    sprite: Objects/Tools/crowbar.rsi
+    state: icon
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepMendRibcage
+  name: Mend ribcage
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: BoneGel
+    remove:
+    - type: RibcageSawed
+    duration: 2
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/bone-gel.rsi
+    state: bone-gel
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepCloseIncision
+  name: Close maintenance panel
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Cautery
+    remove:
+    # This surgery removes a bunch of components that might be leftover from other surgeries in unintended cases.
+    # Essentially a bit of a fallback for endusers :)
+    - type: SkinRetracted
+    - type: BleedersClamped
+    - type: IncisionOpen
+    - type: BodyPartReattached
+    - type: InternalBleedersClamped
+    duration: 2
+  - type: Sprite
+    sprite: Objects/Tools/crowbar.rsi
+    state: icon
+
+# Feature Insertion
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepInsertFeature
+  name: Insert part
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: BodyPart
+    duration: 6
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/manipulation.rsi
+    state: insertion
+  - type: SurgeryAddPartStep
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepSealWounds
+  name: Close maintenance panel
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Cautery
+    remove:
+    - type: SkinRetracted
+    - type: BleedersClamped
+    - type: IncisionOpen
+    - type: InternalBleedersClamped
+    duration: 2
+  - type: SurgeryAffixPartStep
+  - type: Sprite
+    sprite: Objects/Tools/crowbar.rsi
+    state: icon
+
+# Feature Removal
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepSawFeature
+  name: Disconnect structure
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: BoneSaw
+    add:
+    - type: BodyPartSawed
+    duration: 4
+  - type: Sprite
+    sprite: Objects/Tools/welder.rsi
+    state: icon
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepClampInternalBleeders
+  name: Disconnect part wiring
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Hemostat
+    add:
+    - type: InternalBleedersClamped
+    duration: 2
+  - type: Sprite
+    sprite: Objects/Tools/wirecutters.rsi
+    state: cutters-map
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepRemoveFeature
+  name: Remove part
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: BoneSaw
+    remove:
+    # We remove these components to force people to go through all the steps again lol, otherwise you can just keep chopping.
+    - type: SkinRetracted
+    - type: BleedersClamped
+    - type: InternalBleedersClamped
+    - type: IncisionOpen
+    duration: 8
+  - type: Sprite
+    sprite: Objects/Tools/crowbar.rsi
+    state: icon
+  - type: SurgeryRemovePartStep
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepConnectWiring
+  name: Connect part wiring
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Hemostat
+    duration: 4
+  - type: Sprite
+    sprite: Objects/Tools/wirecutters.rsi
+    state: cutters-map
+
+# Tend Wounds
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepCarefulIncisionScalpel
+  name: Open maintenance panel
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Scalpel
+    add:
+    - type: IncisionOpen
+    duration: 3
+  - type: Sprite
+    sprite: Objects/Tools/screwdriver.rsi
+    state: screwdriver-map
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepRepairBruteTissue
+  name: Repair damaged plating
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Tending
+    duration: 1
+  - type: Sprite
+    sprite: Objects/Tools/welder.rsi
+    state: icon
+  - type: SurgeryTendWoundsEffect
+    damage:
+      groups:
+        Brute: -15
+  - type: SurgeryRepeatableStep
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepRepairBurnTissue
+  name: Repair damaged wiring
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Tending
+    duration: 1
+  - type: Sprite
+    sprite: Objects/Tools/wirecutters.rsi
+    state: cutters-map
+  - type: SurgeryTendWoundsEffect
+    mainGroup: Burn
+    damage:
+      groups:
+        Burn: -20
+  - type: SurgeryRepeatableStep
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepSealTendWound
+  name: Close maintenance panel
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Cautery
+    remove:
+    - type: IncisionOpen
+    duration: 2
+  - type: Sprite
+    sprite: Objects/Tools/screwdriver.rsi
+    state: screwdriver-map
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepSealDismembermentWound
+  name: Stitch up the dismemberment wound
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Stitches
+    remove:
+    - type: IncisionOpen
+    duration: 8
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/stitches.rsi
+    state: stitches
+  - type: SurgeryTraumaTreatmentStep
+    traumaType: Dismemberment
+
+# Cavity Implanting
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepInsertItem
+  name: Insert item into cavity
+  components:
+  - type: SurgeryStep
+    duration: 4
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/manipulation.rsi
+    state: insertion
+  - type: SurgeryStepCavityEffect
+    action: Insert
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepRemoveItem
+  name: Remove item from cavity
+  components:
+  - type: SurgeryStep
+    duration: 4
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/manipulation.rsi
+    state: insertion
+  - type: SurgeryStepCavityEffect
+    action: Remove
+
+# Organ Manipulation
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepRemoveOrgan
+  name: Remove organ
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Tweezers
+    duration: 8
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/hemostat.rsi
+    state: hemostat
+  - type: SurgeryRemoveOrganStep
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepInsertOrgan
+  name: Add organ
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Organ
+    duration: 6
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/manipulation.rsi
+    state: insertion
+  - type: SurgeryAddOrganStep
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepOpenOrganSlot
+  name: Carve out a cavity
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Scalpel
+    duration: 6
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/manipulation.rsi
+    state: insertion
+  - type: SurgeryAddOrganSlotStep
+  - type: SurgeryStepEmoteEffect
+
+- type: entity
+  parent: SurgeryStepInsertOrgan
+  id: RobotSurgeryStepInsertLungs
+  name: Add lungs
+  components:
+  - type: SurgeryDamageChangeEffect
+    damage:
+      types:
+        Asphyxiation: -2147483648 # Literally the max 32 bit value, if your patient has gone higher than this, maybe it's time to restart the round.
+    sleepModifier: 1
+    isConsumable: true
+    affectAll: true
+
+- type: entity
+  parent: SurgeryStepInsertOrgan
+  id: RobotSurgeryStepInsertLiver
+  name: Add liver
+  components:
+  - type: SurgeryDamageChangeEffect
+    damage:
+      types:
+        Poison: -2147483648 # Literally the max 32 bit value, if your patient has gone higher than this, maybe it's time to restart the round.
+    sleepModifier: 1
+    isConsumable: true
+    affectAll: true
+
+- type: entity
+  parent: SurgeryStepInsertOrgan
+  id: RobotSurgeryStepInsertEyes
+  name: Add eyes
+
+- type: entity
+  parent: SurgeryStepInsertOrgan
+  id: RobotSurgeryStepInsertHeart
+  name: Add heart
+  components:
+  - type: SurgerySpecialDamageChangeEffect
+    damageType: Rot
+    isConsumable: true
+
+# Doesn't serve much of a purpose right now. Just here for completeness-sake.
+- type: entity
+  parent: SurgeryStepInsertOrgan
+  id: RobotSurgeryStepInsertStomach
+  name: Add stomach
+
+- type: entity
+  parent: SurgeryStepBase
+  id: RobotSurgeryStepSealOrganWound
+  name: Seal wounds
+  components:
+  - type: SurgeryStep
+    tool:
+    - type: Cautery
+    duration: 2
+  - type: SurgeryAffixOrganStep
+  - type: Sprite
+    sprite: _Shitmed/Objects/Specific/Medical/Surgery/cautery.rsi
+    state: cautery
+  - type: SurgeryDamageChangeEffect
+    damage:
+      types:
+        Heat: -5
+    sleepModifier: 2
+
+# Augments
+
+- type: entity
+  parent: SurgeryStepInsertOrgan
+  id: RobotSurgeryStepInsertAugmentPowerCellSlot
+  name: Add power cell slot
+
+- type: entity
+  parent: SurgeryStepInsertOrgan
+  id: RobotSurgeryStepInsertAugmentPowerCellCharger
+  name: Add power cell charger
+
+- type: entity
+  parent: SurgeryStepInsertOrgan
+  id: RobotSurgeryStepInsertAugmentArm
+  name: Add arm augment

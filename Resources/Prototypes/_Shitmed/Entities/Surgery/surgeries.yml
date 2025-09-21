@@ -13,6 +13,10 @@
   id: SurgeryBase
   components:
   - type: Surgery
+  - type: SurgeryPartComponentCondition
+    components:
+      - type: RobotSurgery
+    inverse: true # goob edit - different surgeries for ipcs/cybernetics
 
 - type: entity
   parent: SurgeryBase
@@ -481,23 +485,23 @@
     organ:
     - type: Brain
 
-- type: entity
-  parent: SurgeryBase
-  id: SurgeryRemoveBorgBrain
-  name: Remove Positronic Brain
-  components:
-  - type: Surgery
-    requirement: SurgeryOpenIncision
-    steps:
-    # TODO: ipc surgery steps
-    - SurgeryStepSawBones
-    - SurgeryStepClampInternalBleeders
-    - SurgeryStepRemoveOrgan
-  - type: SurgeryPartCondition
-    part: Chest
-  - type: SurgeryOrganCondition
-    organ:
-    - type: BorgBrain
+# - type: entity # goob edit - ipc surgery is defined elsewhere (this wouldn't show up anyways but just to be sure)
+#   parent: SurgeryBase
+#   id: SurgeryRemoveBorgBrain
+#   name: Remove Positronic Brain
+#   components:
+#   - type: Surgery
+#     requirement: SurgeryOpenIncision
+#     steps:
+#     # TODO: ipc surgery steps
+#     - SurgeryStepSawBones
+#     - SurgeryStepClampInternalBleeders
+#     - SurgeryStepRemoveOrgan
+#   - type: SurgeryPartCondition
+#     part: Chest
+#   - type: SurgeryOrganCondition
+#     organ:
+#     - type: BorgBrain
 
 - type: entity
   parent: SurgeryBase

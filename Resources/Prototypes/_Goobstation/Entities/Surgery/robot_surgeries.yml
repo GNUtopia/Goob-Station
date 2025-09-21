@@ -1,0 +1,877 @@
+- type: entity
+  abstract: true
+  id: RobotSurgeryBase
+  components:
+  - type: Surgery
+  - type: SurgeryPartComponentCondition
+    components:
+      - type: RobotSurgery
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryOpenIncision
+  name: Open Maintenance Panel
+  components:
+  - type: Surgery
+    steps:
+    - RobotSurgeryStepUnlockPanel
+    - RobotSurgeryStepOpenPanel
+  - type: SurgeryPartPresentCondition
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryStopBloodOutput
+  name: Stop Constant Blood Output
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepDisplaceWiring
+    - RobotSurgeryStepCloseBloodOutputs
+  - type: SurgeryBleedsPresentCondition
+  - type: SurgeryPartPresentCondition
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryFixDismemberment
+  name: Fix Dismemberment Leftovers
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepRepairDismembermentWires
+    - RobotSurgeryStepRemoveLeftoverBones
+  - type: SurgeryPartPresentCondition
+  - type: SurgeryBleedsPresentCondition
+    inverted: true
+  - type: SurgeryTraumaPresentCondition
+    trauma: Dismemberment
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryCloseIncision
+  name: Close Maintenance Panel
+  components:
+  - type: Surgery
+    priority: 1
+    steps:
+    - RobotSurgeryStepCloseBones
+    - RobotSurgeryStepCloseIncision
+  - type: SurgeryPartPresentCondition
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryRemovePart
+  name: Remove Part
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepSawFeature
+    - RobotSurgeryStepClampInternalBleeders
+    - RobotSurgeryStepRemoveFeature
+  - type: SurgeryHasBodyCondition
+  - type: SurgeryPartCondition
+    part: Chest
+    inverse: true
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryMendBones
+  name: Repair Structural Damage
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepDisplaceWiring
+    - RobotSurgeryStepMendBones
+  - type: SurgeryPartPresentCondition
+  - type: SurgeryBleedsPresentCondition
+    inverted: true
+  - type: SurgeryTraumaPresentCondition
+    trauma: BoneDamage
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryHealOrgans
+  name: Repair Component Damage
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepDisplaceWiring
+    - RobotSurgeryStepHealOrgans
+  - type: SurgeryPartPresentCondition
+  - type: SurgeryBleedsPresentCondition
+    inverted: true
+  - type: SurgeryTraumaPresentCondition
+    trauma: OrganDamage
+
+# I fucking hate hardcoding all of this shit to accomodate for surgery BUI.
+# If anyone can give me pointers on how to make it better I'd be incredibly grateful.
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachHead
+  name: Attach Head
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Chest
+  - type: SurgeryTraumaPresentCondition
+    inverted: true
+    trauma: Dismemberment
+  - type: SurgeryPartRemovedCondition
+    connection: head
+    part: Head
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachGroin
+  name: Attach Groin
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Chest
+  - type: SurgeryTraumaPresentCondition
+    inverted: true
+    trauma: Dismemberment
+  - type: SurgeryPartRemovedCondition
+    connection: groin
+    part: Groin
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachLeftArm
+  name: Attach Left Arm
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Chest
+  - type: SurgeryTraumaPresentCondition
+    inverted: true
+    trauma: Dismemberment
+  - type: SurgeryPartRemovedCondition
+    connection: left arm
+    part: Arm
+    symmetry: Left
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachRightArm
+  name: Attach Right Arm
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Chest
+  - type: SurgeryTraumaPresentCondition
+    inverted: true
+    trauma: Dismemberment
+  - type: SurgeryPartRemovedCondition
+    connection: right arm
+    part: Arm
+    symmetry: Right
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachLeftLeg
+  name: Attach Left Leg
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Groin
+  - type: SurgeryTraumaPresentCondition
+    inverted: true
+    trauma: Dismemberment
+  - type: SurgeryPartRemovedCondition
+    connection: left leg
+    part: Leg
+    symmetry: Left
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachRightLeg
+  name: Attach Right Leg
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Groin
+  - type: SurgeryTraumaPresentCondition
+    inverted: true
+    trauma: Dismemberment
+  - type: SurgeryPartRemovedCondition
+    connection: right leg
+    part: Leg
+    symmetry: Right
+
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachLeftHand
+  name: Attach Left Hand
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Arm
+    symmetry: Left
+  - type: SurgeryTraumaPresentCondition
+    inverted: true
+    trauma: Dismemberment
+  - type: SurgeryPartRemovedCondition
+    connection: left hand
+    part: Hand
+    symmetry: Left
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachRightHand
+  name: Attach Right Hand
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Arm
+    symmetry: Right
+  - type: SurgeryTraumaPresentCondition
+    inverted: true
+    trauma: Dismemberment
+  - type: SurgeryPartRemovedCondition
+    connection: right hand
+    part: Hand
+    symmetry: Right
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachLeftFoot
+  name: Attach Left Foot
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Leg
+    symmetry: Left
+  - type: SurgeryTraumaPresentCondition
+    inverted: true
+    trauma: Dismemberment
+  - type: SurgeryPartRemovedCondition
+    connection: left foot
+    part: Foot
+    symmetry: Left
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachRightFoot
+  name: Attach Right Foot
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Leg
+    symmetry: Right
+  - type: SurgeryTraumaPresentCondition
+    inverted: true
+    trauma: Dismemberment
+  - type: SurgeryPartRemovedCondition
+    connection: right foot
+    part: Foot
+    symmetry: Right
+
+# Surgery for animals - They have a single legs/hands entity.
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachLegs
+  name: Attach Legs
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Groin
+  - type: SurgeryPartRemovedCondition
+    connection: legs
+    part: Leg
+    symmetry: None
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachHands
+  name: Attach Hands
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Chest
+  - type: SurgeryPartRemovedCondition
+    connection: hands
+    part: Hand
+    symmetry: Left # shitcode i guess because of ui icons
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachFeet
+  name: Attach Feet
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Groin
+  - type: SurgeryPartRemovedCondition
+    connection: feet
+    part: Foot
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryAttachTail
+  name: Attach Tail
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepInsertFeature
+    - RobotSurgeryStepConnectWiring
+    - RobotSurgeryStepSealWounds
+  - type: SurgeryPartCondition
+    part: Groin
+  - type: SurgeryPartRemovedCondition
+    connection: tail
+    part: Tail
+    symmetry: None
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryTendWoundsBrute
+  name: Repair Kinetic Damage
+  components:
+  - type: Surgery
+    steps:
+    - RobotSurgeryStepCarefulIncisionScalpel
+    - RobotSurgeryStepRepairBruteTissue
+    - RobotSurgeryStepSealTendWound
+  - type: SurgeryWoundedCondition
+    damageGroup: Brute
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryTendWoundsBurn
+  name: Repair Burn Damage
+  components:
+  - type: Surgery
+    steps:
+    - RobotSurgeryStepCarefulIncisionScalpel
+    - RobotSurgeryStepRepairBurnTissue
+    - RobotSurgeryStepSealTendWound
+  - type: SurgeryWoundedCondition
+    damageGroup: Burn
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryInsertItem
+  name: Cavity Implant
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - SurgeryStepInsertItem
+    - SurgeryStepRemoveItem
+  - type: SurgeryPartCondition
+    part: Chest
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryRemoveBrain
+  name: Remove Brain
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - SurgeryStepSawBones
+    - SurgeryStepClampInternalBleeders
+    - SurgeryStepRemoveOrgan
+  - type: SurgeryPartCondition
+    part: Head
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Brain
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryRemoveBorgBrain
+  name: Remove Positronic Brain
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepPriseOpenBones
+    - RobotSurgeryStepClampInternalBleeders
+    - RobotSurgeryStepRemoveOrgan
+  - type: SurgeryPartCondition
+    part: Chest
+  - type: SurgeryOrganCondition
+    organ:
+    - type: BorgBrain
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryInsertBrain
+  name: Insert Brain
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - SurgeryStepSawBones
+    - SurgeryStepInsertOrgan
+    - SurgeryStepSealOrganWound
+  - type: SurgeryOrganSlotCondition
+    organSlot: brain
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Brain
+    inverse: true
+    reattaching: true
+
+- type: entity
+  parent: SurgeryInsertBrain
+  id: RobotSurgeryInsertBorgBrain
+  name: Insert Positronic Brain
+  components:
+  - type: SurgeryOrganSlotCondition
+    organSlot: posbrain
+  - type: SurgeryOrganCondition
+    organ:
+    - type: BorgBrain
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepPriseOpenBones
+    - RobotSurgeryStepInsertOrgan
+    - RobotSurgeryStepSealOrganWound
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryRemoveHeart
+  name: Remove Coolant Pump
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepPriseOpenBones
+    - RobotSurgeryStepClampInternalBleeders
+    - RobotSurgeryStepRemoveOrgan
+  - type: SurgeryPartCondition
+    part: Chest
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Heart
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryInsertHeart
+  name: Insert Coolant Pump
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepPriseOpenBones
+    - RobotSurgeryStepInsertHeart
+    - RobotSurgeryStepSealOrganWound
+  - type: SurgeryPartCondition
+    part: Chest
+  - type: SurgeryOrganSlotCondition
+    organSlot: pump
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Heart
+    inverse: true
+    reattaching: true
+
+- type: entity # these probably can't show up but just in case
+  parent: RobotSurgeryBase
+  id: RobotSurgeryRemoveLiver
+  name: Remove Liver
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepDisplaceWiring
+    - SurgeryStepClampInternalBleeders
+    - SurgeryStepRemoveOrgan
+  - type: SurgeryPartCondition
+    part: Groin
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Liver
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryInsertLiver
+  name: Insert Liver
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - SurgeryStepInsertLiver
+    - SurgeryStepSealOrganWound
+    - RobotSurgeryStepSealOrganWound
+  - type: SurgeryPartCondition
+    part: Groin
+  - type: SurgeryOrganSlotCondition
+    organSlot: liver
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Liver
+    inverse: true
+    reattaching: true
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryRemoveLungs
+  name: Remove Lungs
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - SurgeryStepSawBones
+    - SurgeryStepClampInternalBleeders
+    - SurgeryStepRemoveOrgan
+  - type: SurgeryPartCondition
+    part: Chest
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Lung
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryInsertLungs
+  name: Insert Lungs
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - SurgeryStepSawBones
+    - SurgeryStepInsertLungs
+    - RobotSurgeryStepSealOrganWound
+  - type: SurgeryPartCondition
+    part: Chest
+  - type: SurgeryOrganSlotCondition
+    organSlot: lungs
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Lung
+    inverse: true
+    reattaching: true
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryRemoveStomach
+  name: Remove Stomach
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - SurgeryStepCarefulIncisionScalpel
+    - SurgeryStepClampInternalBleeders
+    - SurgeryStepRemoveOrgan
+  - type: SurgeryPartCondition
+    part: Groin
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Stomach
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryInsertStomach
+  name: Insert Stomach
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - SurgeryStepInsertStomach
+    - SurgeryStepSealOrganWound
+    - RobotSurgeryStepSealOrganWound
+  - type: SurgeryPartCondition
+    part: Groin
+  - type: SurgeryOrganSlotCondition
+    organSlot: stomach
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Stomach
+    inverse: true
+    reattaching: true
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryRemoveEyes
+  name: Remove Eyes
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepPriseOpenBones
+    - RobotSurgeryStepDisplaceWiring
+    - RobotSurgeryStepRemoveOrgan
+  - type: SurgeryPartCondition
+    part: Head
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Eyes
+
+- type: entity
+  parent: RobotSurgeryBase
+  id: RobotSurgeryInsertEyes
+  name: Insert Eyes
+  components:
+  - type: Surgery
+    requirement: RobotSurgeryOpenIncision
+    steps:
+    - RobotSurgeryStepPriseOpenBones
+    - RobotSurgeryStepInsertEyes
+    - RobotSurgeryStepSealOrganWound
+  - type: SurgeryOrganSlotCondition
+    organSlot: eyes
+  - type: SurgeryOrganCondition
+    organ:
+    - type: Eyes
+    inverse: true
+    reattaching: true
+
+## Augments
+# TODO: i'm definitely totally gonna come back and make augments work with ipcs sometime
+
+# - type: entity
+#   abstract: true
+#   parent: RobotSurgeryBase
+#   id: RobotSurgeryOpenCavityBase
+#   components:
+#   - type: Surgery
+#     requirement: RobotSurgeryOpenIncision
+#     steps:
+#     - SurgeryStepSawBones
+#     - SurgeryStepOpenOrganSlot
+#   - type: SurgeryOrganSlotCondition
+#     inverse: true
+
+# - type: entity
+#   abstract: true
+#   parent: RobotSurgeryBase
+#   id: RobotSurgeryInstallAugmentBase
+#   components:
+#   - type: Surgery
+#     requirement: RobotSurgeryOpenIncision
+#   - type: SurgeryOrganCondition
+#     inverse: true
+#     reattaching: true
+
+# - type: entity
+#   abstract: true
+#   parent: RobotSurgeryBase
+#   id: RobotSurgeryRemoveAugmentBase
+#   components:
+#   - type: Surgery
+#     requirement: RobotSurgeryOpenIncision
+#     steps:
+#     - SurgeryStepSawBones
+#     - SurgeryStepClampInternalBleeders
+#     - SurgeryStepRemoveOrgan
+
+# # Power Cell Slot
+
+# - type: entity
+#   parent: RobotSurgeryInstallAugmentBase
+#   id: RobotSurgeryInsertPowerCellSlot
+#   name: Insert Power Cell Slot
+#   components:
+#   - type: Surgery
+#     steps:
+#     - SurgeryStepSawBones
+#     - SurgeryStepInsertAugmentPowerCellSlot
+#     - SurgeryStepSealOrganWound
+#   - type: SurgeryPartCondition
+#     part: Chest
+#   - type: SurgeryOrganCondition
+#     organ:
+#     - type: AugmentPowerCellSlot
+#   - type: SurgeryOrganSlotCondition
+#     organSlot: powerCell
+#   - type: SurgeryBodyCondition
+#     accepted: [ IPC ]
+#     inverse: true
+
+# - type: entity
+#   parent: RobotSurgeryOpenCavityBase
+#   id: RobotSurgeryOpenPowerCellSlot
+#   name: Open Cavity For Power Cell Slot
+#   components:
+#   - type: SurgeryPartCondition
+#     part: Chest
+#   - type: SurgeryOrganSlotCondition
+#     organSlot: powerCell
+#   - type: SurgeryBodyCondition
+#     accepted: [ IPC ]
+#     inverse: true
+
+# - type: entity
+#   parent: RobotSurgeryRemoveAugmentBase
+#   id: RobotSurgeryRemovePowerCellSlot
+#   name: Remove Power Cell Slot
+#   components:
+#   - type: SurgeryPartCondition
+#     part: Chest
+#   - type: SurgeryOrganCondition
+#     organ:
+#     - type: AugmentPowerCellSlot
+#   - type: SurgeryBodyCondition
+#     accepted: [ IPC ]
+#     inverse: true
+
+# # Power Cell Charger
+
+# - type: entity
+#   parent: RobotSurgeryInstallAugmentBase
+#   id: RobotSurgeryInsertPowerCellCharger
+#   name: Insert Internal Power Cell Charger
+#   components:
+#   - type: Surgery
+#     steps:
+#     - SurgeryStepSawBones
+#     - SurgeryStepInsertAugmentPowerCellCharger
+#     - SurgeryStepSealOrganWound
+#   - type: SurgeryPartCondition
+#     part: Chest
+#   - type: SurgeryOrganCondition
+#     organ:
+#     - type: AugmentCharger
+#   - type: SurgeryOrganSlotCondition
+#     organSlot: charger
+#   - type: SurgeryBodyCondition
+#     accepted: [ IPC ]
+#     inverse: true
+
+# - type: entity
+#   parent: RobotSurgeryOpenCavityBase
+#   id: RobotSurgeryOpenPowerCellCharger
+#   name: Open Cavity For Power Cell Charger
+#   components:
+#   - type: SurgeryPartCondition
+#     part: Chest
+#   - type: SurgeryOrganSlotCondition
+#     organSlot: charger
+#   - type: SurgeryBodyCondition
+#     accepted: [ IPC ]
+#     inverse: true
+
+# - type: entity
+#   parent: RobotSurgeryRemoveAugmentBase
+#   id: RobotSurgeryRemovePowerCellCharger
+#   name: Remove Internal Power Cell Charger
+#   components:
+#   - type: SurgeryPartCondition
+#     part: Chest
+#   - type: SurgeryOrganCondition
+#     organ:
+#     - type: AugmentCharger
+#   - type: SurgeryBodyCondition
+#     accepted: [ IPC ]
+#     inverse: true
+
+# # Arm
+
+# - type: entity
+#   parent: RobotSurgeryOpenCavityBase
+#   id: RobotSurgeryOpenArmAugment
+#   name: Open Cavity For Arm Augments
+#   components:
+#   - type: Surgery
+#     requirement: RobotSurgeryOpenIncision # no ribcage
+#   - type: SurgeryPartCondition
+#     part: Arm
+#   - type: SurgeryOrganSlotCondition
+#     organSlot: armImplant
+
+# - type: entity
+#   parent: RobotSurgeryInstallAugmentBase
+#   id: RobotSurgeryInsertArmAugment
+#   name: Insert Arm Augment
+#   components:
+#   - type: Surgery
+#     requirement: RobotSurgeryOpenIncision # no ribcage
+#     steps:
+#     - SurgeryStepSawBones
+#     - SurgeryStepInsertAugmentArm
+#     - SurgeryStepSealOrganWound
+#   - type: SurgeryPartCondition
+#     part: Arm
+#   - type: SurgeryOrganCondition
+#     organ:
+#     - type: AugmentArm
+#   - type: SurgeryOrganSlotCondition
+#     organSlot: armImplant
+
+# - type: entity
+#   parent: RobotSurgeryRemoveAugmentBase
+#   id: RobotSurgeryRemoveArmAugment
+#   name: Remove Arm Augment
+#   components:
+#   - type: SurgeryPartCondition
+#     part: Arm
+#   - type: SurgeryOrganCondition
+#     organ:
+#     - type: AugmentArm
