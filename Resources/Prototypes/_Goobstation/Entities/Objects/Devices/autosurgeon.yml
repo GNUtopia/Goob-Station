@@ -4,14 +4,19 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 - type: entity
-  parent: BaseStructure
+  parent: [ BaseDeployFoldable, BaseStructure ]
   id: BaseAutosurgeon
   description: A single-use autosurgeon for replacing or upgrading your parts with cybernetic implants. Rip that station apart and make it a part of you.
   abstract: true
   components:
   - type: Sprite
     sprite: _Goobstation/Objects/Devices/autosurgeon.rsi
-    state: icon
+    layers:
+    - state: icon
+      map: ["unfoldedLayer"]
+    - state: folded
+      map: ["foldedLayer"]
+      visible: false
     noRot: true
   - type: Item
     size: Huge
@@ -39,6 +44,8 @@
     noRot: true
   - type: Anchorable
   - type: Pullable
+  - type: Foldable
+    folded: true
 
 - type: entity
   parent: [BaseAutosurgeon, BaseSyndicateContraband]
@@ -46,7 +53,12 @@
   abstract: true
   components:
   - type: Sprite
-    state: icon-syndie
+    layers:
+    - state: icon-syndie
+      map: ["unfoldedLayer"]
+    - state: folded-syndie
+      map: ["foldedLayer"]
+      visible: false
 
 # CREW (currently not used, use for testing purposes admeme etc.)
 
