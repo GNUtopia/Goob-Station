@@ -1,0 +1,59 @@
+- type: entity
+  parent: MobMouse
+  id: MobMousePet
+  components:
+  - type: HTN
+    rootTask:
+      task: FollowCompound
+    blackboard:
+      IdleRange: !type:Single
+        1.5
+      FollowCloseRange: !type:Single
+        1.0
+      FollowRange: !type:Single
+        2.0
+
+- type: entity
+  parent: MobMothroach
+  id: MobMothroachPet
+  components:
+  - type: HTN
+    rootTask:
+      task: FollowCompound
+    blackboard:
+      IdleRange: !type:Single
+        1.5
+      FollowCloseRange: !type:Single
+        1.0
+      FollowRange: !type:Single
+        2.0
+
+- type: entity
+  parent: MobSquackroach
+  id: MobSquackroachPet
+  components:
+  - type: HTN
+    rootTask:
+      task: FollowCompound
+    blackboard:
+      IdleRange: !type:Single
+        1.5
+      FollowCloseRange: !type:Single
+        1.0
+      FollowRange: !type:Single
+        2.0
+
+- type: entity
+  parent: MobCarpGoldfish
+  id: MobGoldfishPet
+  components:
+  - type: HTN
+    rootTask:
+      task: FollowCompound
+    blackboard:
+      IdleRange: !type:Single
+        1.5
+      FollowCloseRange: !type:Single
+        1.0
+      FollowRange: !type:Single
+        2.0
