@@ -79,22 +79,22 @@
   id: Squackroach
   storage:
     back:
-    - MobSquackroach
+    - MobSquackroachPet
 
 - type: loadout
   id: Mouse
   storage:
     back:
-    - MobMouse
+    - MobMousePet
 
 - type: loadout
   id: Mothroach
   storage:
     back:
-    - MobMothroach
+    - MobMothroachPet
 
 - type: loadout
   id: Goldfish
   storage:
     back:
-    - MobCarpGoldfish
+    - MobGoldfishPet
