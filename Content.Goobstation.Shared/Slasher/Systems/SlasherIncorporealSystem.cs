@@ -1,39 +1,49 @@
 using Content.Goobstation.Shared.PhaseShift;
 using Content.Goobstation.Shared.Slasher.Components;
-using Content.Goobstation.Shared.Slasher.Events;
 using Content.Shared.Actions;
 using Content.Shared.Actions.Components;
 using Content.Shared.Actions.Events;
+using Content.Shared.Flash;
 using Content.Shared.Interaction.Events;
-using Content.Shared.InteractionVerbs.Events;
 using Content.Shared.Popups;
 using Content.Shared.Stealth;
 using Content.Shared.Stealth.Components;
 using Content.Shared.Movement.Pulling.Events;
+using Content.Shared.Movement.Pulling.Components;
+using Content.Shared.Movement.Systems;
 using Robust.Shared.Network;
 using Content.Shared.Damage;
-using Content.Shared.Damage.Events;
 using Content.Shared.Tag;
 using Content.Shared.Doors.Systems;
-using Content.Shared.Hands;
-using Content.Goobstation.Common.Footprints;
 using Content.Shared.Movement.Components;
 using Content.Shared.Speech.Muting;
-using Content.Shared.Emoting;
 using Content.Goobstation.Common.Atmos;
+using Content.Goobstation.Common.Body.Components;
 using Content.Goobstation.Common.Temperature.Components;
-using Content.Goobstation.Shared.Body.Components;
-using Content.Shared.Interaction;
 using Content.Shared.Physics;
-using Content.Shared.Ghost;
 using Content.Shared.DoAfter;
-using Content.Shared.Mobs.Systems;
-using Content.Shared.Humanoid;
-using Content.Shared.Electrocution;
+using Robust.Shared.Timing;
+using Robust.Shared.Physics.Components;
+using Content.Goobstation.Shared.Overlays;
+using Content.Shared.Inventory.VirtualItem;
+using Content.Shared.Hands.EntitySystems;
+using Content.Shared.Hands.Components;
+using Robust.Shared.Audio.Systems;
+using Content.Shared.Hands;
 using Content.Shared.Standing;
 using Content.Goobstation.Shared.Supermatter.Components;
 using Content.Shared.Body.Part;
-using Content.Shared.Pointing;
+using Robust.Shared.Physics.Systems;
+using Robust.Shared.Physics;
+using Content.Shared.Throwing;
+using Content.Goobstation.Shared.Sprinting;
+using Content.Shared.Stunnable;
+using Content.Shared.Trigger;
+using Content.Shared.Trigger.Components.Triggers;
+using Content.Goobstation.Common.Materials;
+using Content.Goobstation.Shared.Xenomorph;
+using Content.Shared.Bed.Sleep;
+using Content.Shared.StepTrigger.Systems;
 
 namespace Content.Goobstation.Shared.Slasher.Systems;
 
@@ -45,45 +55,44 @@ public sealed class SlasherIncorporealSystem : EntitySystem
     [Dependency] private readonly INetManager _net = default!;
     [Dependency] private readonly TagSystem _tags = default!;
     [Dependency] private readonly SharedEyeSystem _eye = default!;
-    [Dependency] private readonly SharedInteractionSystem _interaction = default!;
     [Dependency] private readonly EntityLookupSystem _lookup = default!;
     [Dependency] private readonly SharedDoAfterSystem _doAfter = default!;
-    [Dependency] private readonly MobStateSystem _mobState = default!;
-    [Dependency] private readonly StandingStateSystem _standing = default!;
+    [Dependency] private readonly IGameTiming _timing = default!;
+    [Dependency] private readonly SharedHandsSystem _hands = default!;
+    [Dependency] private readonly SharedVirtualItemSystem _virtualItem = default!;
+    [Dependency] private readonly SharedAudioSystem _audio = default!;
+    [Dependency] private readonly MovementSpeedModifierSystem _movement = default!;
+    [Dependency] private readonly SharedPhysicsSystem _physics = default!;
+    [Dependency] private readonly FixtureSystem _fixtures = default!;
+    [Dependency] private readonly SlasherObserverCheckSystem _observerCheck = default!;
 
     private const string FootstepSoundTag = "FootstepSound";
 
     public override void Initialize()
     {
         base.Initialize();
+
         SubscribeLocalEvent<SlasherIncorporealComponent, MapInitEvent>(OnMapInit);
         SubscribeLocalEvent<SlasherIncorporealComponent, ComponentShutdown>(OnShutdown);
 
         SubscribeLocalEvent<SlasherIncorporealComponent, SlasherIncorporealizeEvent>(OnIncorporealize);
         SubscribeLocalEvent<SlasherIncorporealComponent, SlasherCorporealizeEvent>(OnCorporealize);
         SubscribeLocalEvent<SlasherIncorporealComponent, SlasherIncorporealizeDoAfterEvent>(OnIncorporealizeDoAfter);
-        SubscribeLocalEvent<SlasherIncorporealComponent, SlasherIncorporealObserverCheckEvent>(OnObserverCheck);
 
-        SubscribeLocalEvent<SlasherIncorporealComponent, InteractionAttemptEvent>(OnAttemptInteract);
-        SubscribeLocalEvent<SlasherIncorporealComponent, InteractionVerbAttemptEvent>(OnAttempt);
+        SubscribeLocalEvent<SlasherIncorporealComponent, BeforeThrowEvent>(OnBeforeThrow);
         SubscribeLocalEvent<SlasherIncorporealComponent, AttackAttemptEvent>(OnAttackAttempt);
-        SubscribeLocalEvent<SlasherIncorporealComponent, UseAttemptEvent>(OnUseAttempt);
         SubscribeLocalEvent<SlasherIncorporealComponent, PullAttemptEvent>(OnPullAttempt);
         SubscribeLocalEvent<SlasherIncorporealComponent, DropAttemptEvent>(OnDropAttempt);
-        SubscribeLocalEvent<SlasherIncorporealComponent, GettingAttackedAttemptEvent>(OnGettingAttackedAttempt);
-        SubscribeLocalEvent<SlasherIncorporealComponent, BeforeDamageChangedEvent>(OnBeforeDamage);
-        SubscribeLocalEvent<SlasherIncorporealComponent, BeforeStaminaDamageEvent>(OnBeforeStaminaDamage);
-        SubscribeLocalEvent<SlasherIncorporealComponent, BeforeEmoteEvent>(OnBeforeEmote);
-        SubscribeLocalEvent<SlasherIncorporealComponent, EmoteAttemptEvent>(OnEmoteAttempt);
-        SubscribeLocalEvent<SlasherIncorporealComponent, FootprintLeaveAttemptEvent>(OnFootprintLeaveAttempt);
-        SubscribeLocalEvent<SlasherIncorporealComponent, GettingInteractedWithAttemptEvent>(OnGettingInteractedWithAttempt);
-        SubscribeLocalEvent<SlasherIncorporealComponent, ElectrocutionAttemptEvent>(OnElectrocutionAttempt);
-        SubscribeLocalEvent<SlasherIncorporealComponent, DownAttemptEvent>(OnDownAttempt);
-        SubscribeLocalEvent<SlasherIncorporealComponent, PointAttemptEvent>(OnPointAttempt);
-
+        SubscribeLocalEvent<SlasherIncorporealComponent, InteractionAttemptEvent>(OnAttemptInteract);
+        SubscribeLocalEvent<SlasherIncorporealComponent, PullStoppedMessage>(OnPullStopped);
         SubscribeLocalEvent<DamageableComponent, BeforeDamageChangedEvent>(OnBeforeDamageBodyPart);
-
         SubscribeLocalEvent<ActionComponent, ActionAttemptEvent>(OnAnyActionAttempt);
+        SubscribeLocalEvent<SlasherIncorporealComponent, SprintAttemptEvent>(OnSprintAttempt);
+        SubscribeLocalEvent<SlasherIncorporealComponent, DownAttemptEvent>(OnDownAttempt);
+        SubscribeLocalEvent<SlasherIncorporealComponent, KnockDownAttemptEvent>(OnKnockDownAttempt);
+        SubscribeLocalEvent<SlasherIncorporealComponent, FlashAttemptEvent>(OnFlashAttempt);
+        SubscribeLocalEvent<TriggerOnProximityComponent, AttemptTriggerEvent>(OnProximityTriggerAttempt);
+        SubscribeLocalEvent<SlasherIncorporealComponent, StepTriggerAttemptEvent>(OnStepTriggerAttempt);
     }
 
     private void OnMapInit(Entity<SlasherIncorporealComponent> ent, ref MapInitEvent args)
@@ -94,6 +103,8 @@ public sealed class SlasherIncorporealSystem : EntitySystem
         _actions.AddAction(ent.Owner, ref ent.Comp.IncorporealizeActionEnt, ent.Comp.IncorporealizeActionId);
         _actions.AddAction(ent.Owner, ref ent.Comp.CorporealizeActionEnt, ent.Comp.CorporealizeActionId);
         _actions.SetEnabled(ent.Comp.CorporealizeActionEnt, false);
+
+        EnsureComp<SlasherObserverCheckComponent>(ent);
     }
 
     private void OnShutdown(Entity<SlasherIncorporealComponent> ent, ref ComponentShutdown args)
@@ -110,23 +121,14 @@ public sealed class SlasherIncorporealSystem : EntitySystem
         if (args.Handled || ent.Comp.IsIncorporeal)
             return;
 
-        // Run server-side only to avoid client prediction flicker
-        if (!_net.IsServer)
+        // Check if anyone can see them
+        if (_observerCheck.IsObservedByPlayers(ent.Owner, ent.Comp.ObserverCheckRange))
         {
+            _popup.PopupPredicted(Loc.GetString("slasher-incorporealize-fail-seen"), ent.Owner, ent.Owner);
             args.Handled = true;
             return;
         }
 
-        // Check if anyone can see them.
-        var checkEv = new SlasherIncorporealObserverCheckEvent(GetNetEntity(ent.Owner), ent.Comp.ObserverCheckRange);
-        RaiseLocalEvent(ent.Owner, checkEv);
-        if (checkEv.Cancelled)
-        {
-            _popup.PopupEntity(Loc.GetString("slasher-corporealize-fail-seen"), ent.Owner, ent.Owner);
-            return;
-        }
-
-        // Start do-after to enter incorporeal
         var doArgs = new DoAfterArgs(EntityManager,
             ent.Owner,
             ent.Comp.IncorporealizeDelay,
@@ -151,22 +153,39 @@ public sealed class SlasherIncorporealSystem : EntitySystem
         if (args.Handled)
             return;
 
-        if (!_net.IsServer)
+        if (!ent.Comp.IsIncorporeal)
         {
             args.Handled = true;
             return;
         }
 
-        if (!ent.Comp.IsIncorporeal)
-            return;
-
-        // Check if any active surveillance cameras have line of sight.
-        var camEv = new SlasherIncorporealCameraCheckEvent(GetNetEntity(ent.Owner), ent.Comp.ObserverCheckRange);
-        RaiseLocalEvent(ref camEv);
-        if (camEv.Cancelled)
+        if (_net.IsServer)
         {
-            _popup.PopupEntity(Loc.GetString("slasher-corporealize-fail-camera"), ent.Owner, ent.Owner);
-            return;
+            // Check if anyone can see them.
+            if (_observerCheck.IsObservedByPlayers(ent.Owner, ent.Comp.ObserverCheckRange))
+            {
+                _popup.PopupEntity(Loc.GetString("slasher-corporealize-fail-nearby"), ent.Owner, ent.Owner);
+                args.Handled = true;
+                return;
+            }
+
+            // Check if any active surveillance cameras have line of sight.
+            var camEv = new SlasherIncorporealCameraCheckEvent(GetNetEntity(ent.Owner), ent.Comp.ObserverCheckRange);
+            RaiseLocalEvent(ref camEv);
+            if (camEv.Cancelled)
+            {
+                _popup.PopupEntity(Loc.GetString("slasher-corporealize-fail-camera"), ent.Owner, ent.Owner);
+                args.Handled = true;
+                return;
+            }
+
+            // Check if the slasher is currently inside a wall or solid object.
+            if (IsInsideSolidObject(ent.Owner))
+            {
+                _popup.PopupEntity(Loc.GetString("slasher-corporealize-fail-inside-wall"), ent.Owner, ent.Owner);
+                args.Handled = true;
+                return;
+            }
         }
 
         ExitIncorporeal(ent.Owner, ent);
@@ -178,18 +197,9 @@ public sealed class SlasherIncorporealSystem : EntitySystem
         if (args.Cancelled || args.Handled)
             return;
 
-        if (!_net.IsServer)
+        if (_observerCheck.IsObservedByPlayers(ent.Owner, ent.Comp.ObserverCheckRange))
         {
-            args.Handled = true;
-            return;
-        }
-
-        // Check if anyone can see them.
-        var checkEv = new SlasherIncorporealObserverCheckEvent(GetNetEntity(ent.Owner), ent.Comp.ObserverCheckRange);
-        RaiseLocalEvent(ent.Owner, checkEv);
-        if (checkEv.Cancelled)
-        {
-            _popup.PopupEntity(Loc.GetString("slasher-corporealize-fail-seen"), ent.Owner, ent.Owner);
+            _popup.PopupPredicted(Loc.GetString("slasher-incorporealize-fail-seen"), ent.Owner, ent.Owner);
             return;
         }
 
@@ -197,19 +207,35 @@ public sealed class SlasherIncorporealSystem : EntitySystem
         args.Handled = true;
     }
 
-    private void EnterIncorporeal(EntityUid uid, Entity<SlasherIncorporealComponent> ent)
+    public void EnterIncorporeal(EntityUid uid, Entity<SlasherIncorporealComponent> ent)
     {
         ent.Comp.IsIncorporeal = true;
+        ent.Comp.IncorporealStartTime = _timing.CurTime;
         Dirty(ent);
 
-        // Force stand up when entering incorporeal
-        _standing.Stand(uid, force: true);
+        // Freeze all action cooldowns.
+        FreezeCooldowns((uid, ent.Comp));
 
-        // main component.
-        var phase = EnsureComp<PhaseShiftedComponent>(uid);
-        phase.MovementSpeedBuff = 3.5f;
+        RemCompDeferred<KnockedDownComponent>(uid);
+        ent.Comp.AddedIncorporealComponents.Clear();
+
+        EnsureTrackedComp<FacehuggerImmuneComponent>(uid, ent);
+
+        var phase = EnsureTrackedComp<PhaseShiftedComponent>(uid, ent, new PhaseShiftedComponent
+        {
+            SpawnEffects = true,
+            MovementSpeedBuff = 5.5f,
+            PhaseInEffect = ent.Comp.JauntInEffect,
+            PhaseOutEffect = ent.Comp.JauntOutEffect,
+            PhaseInSound = ent.Comp.JauntDisappear,
+            PhaseOutSound = ent.Comp.JauntAppear,
+        });
+
+        Dirty(uid, phase);
+        _movement.RefreshMovementSpeedModifiers(uid);
 
         // don't wanna let people see them obviously.
+        EnsureTrackedComp<StealthComponent>(uid, ent);
         var stealth = EnsureComp<StealthComponent>(uid);
         _stealth.SetVisibility(uid, stealth.MinVisibility, stealth);
         _stealth.SetThermalsImmune(uid, true, stealth);
@@ -226,130 +252,131 @@ public sealed class SlasherIncorporealSystem : EntitySystem
             _tags.RemoveTag(uid, FootstepSoundTag);
 
         // Mute and block vocal emotes.
-        _ = EnsureComp<MutedComponent>(uid);
+        EnsureTrackedComp<MutedComponent>(uid, ent);
 
         // Disable FOV for full vision while incorporeal.
         _eye.SetDrawFov(uid, false);
 
         // Space immunity
-        _ = EnsureComp<MovementIgnoreGravityComponent>(uid);
-        _ = EnsureComp<SpecialPressureImmunityComponent>(uid);
-        _ = EnsureComp<SpecialBreathingImmunityComponent>(uid);
-        _ = EnsureComp<SpecialLowTempImmunityComponent>(uid);
-        _ = EnsureComp<SpecialHighTempImmunityComponent>(uid);
+        EnsureTrackedComp<MovementIgnoreGravityComponent>(uid, ent);
+        EnsureTrackedComp<SpecialPressureImmunityComponent>(uid, ent);
+        EnsureTrackedComp<SpecialBreathingImmunityComponent>(uid, ent);
+        EnsureTrackedComp<SpecialLowTempImmunityComponent>(uid, ent);
+        EnsureTrackedComp<SpecialHighTempImmunityComponent>(uid, ent);
 
         // Supermatter immunity
-        _ = EnsureComp<SupermatterImmuneComponent>(uid);
+        EnsureTrackedComp<SupermatterImmuneComponent>(uid, ent);
+
+        // Recycler immunity
+        EnsureTrackedComp<MaterialReclaimerImmuneComponent>(uid, ent);
 
         // Raise event for server systems to handle additional logic (like disabling lights)
         var enteredEv = new SlasherIncorporealEnteredEvent();
         RaiseLocalEvent(uid, ref enteredEv);
     }
 
-    private void ExitIncorporeal(EntityUid uid, Entity<SlasherIncorporealComponent> ent)
+    public void ExitIncorporeal(EntityUid uid, Entity<SlasherIncorporealComponent> ent)
     {
         ent.Comp.IsIncorporeal = false;
         Dirty(ent);
-        if (HasComp<PhaseShiftedComponent>(uid))
-            RemComp<PhaseShiftedComponent>(uid);
 
-        if (HasComp<StealthComponent>(uid))
-            RemComp<StealthComponent>(uid);
+        // Restore frozen cooldowns
+        UnfreezeCooldowns((uid, ent.Comp));
+
+        ent.Comp.IncorporealStartTime = null;
+
+        RemoveTrackedCompsDeferred(uid, ent);
+
         _actions.SetEnabled(ent.Comp.IncorporealizeActionEnt, true);
         _actions.SetEnabled(ent.Comp.CorporealizeActionEnt, false);
 
         _tags.AddTag(uid, SharedDoorSystem.DoorBumpTag);
-
         _tags.AddTag(uid, FootstepSoundTag);
-
-        // Let them speak
-        _ = RemComp<MutedComponent>(uid);
 
         // Restore FOV
         _eye.SetDrawFov(uid, true);
-
-        // Remove space immunity
-        _ = RemComp<MovementIgnoreGravityComponent>(uid);
-        _ = RemComp<SpecialPressureImmunityComponent>(uid);
-        _ = RemComp<SpecialBreathingImmunityComponent>(uid);
-        _ = RemComp<SpecialLowTempImmunityComponent>(uid);
-        _ = RemComp<SpecialHighTempImmunityComponent>(uid);
-
-        // Remove supermatter immunity
-        _ = RemComp<SupermatterImmuneComponent>(uid);
     }
 
-    // Event hell below
-    private void OnPointAttempt(EntityUid uid, SlasherIncorporealComponent comp, PointAttemptEvent args)
+    /// <summary>
+    /// EnsureComp but it checks if they already had the Component.
+    /// If they didn't it adds it to a list then removes it when they
+    /// corporealize.
+    /// </summary>
+    private T EnsureTrackedComp<T>(EntityUid uid, Entity<SlasherIncorporealComponent> ent, T? preconfigured = null) where T : Component, new()
     {
-        if (comp.IsIncorporeal)
-            args.Cancel();
+        if (TryComp<T>(uid, out var existing))
+            return existing;
+
+        var componentName = typeof(T).FullName;
+        if (componentName != null)
+            ent.Comp.AddedIncorporealComponents.Add(componentName);
+
+        if (preconfigured != null)
+        {
+            AddComp(uid, preconfigured);
+            return preconfigured;
+        }
+
+        return EnsureComp<T>(uid);
     }
 
-    private void OnDownAttempt(EntityUid uid, SlasherIncorporealComponent comp, DownAttemptEvent args)
+    /// <summary>
+    /// Removes tracked components.
+    /// </summary>
+    private void RemoveTrackedCompsDeferred(EntityUid uid, Entity<SlasherIncorporealComponent> ent)
     {
-        if (comp.IsIncorporeal)
-            args.Cancel();
+        if (ent.Comp.AddedIncorporealComponents.Count == 0)
+            return;
+
+        foreach (var component in EntityManager.GetComponents(uid))
+        {
+            var componentName = component.GetType().FullName;
+            if (componentName != null && ent.Comp.AddedIncorporealComponents.Contains(componentName))
+                RemCompDeferred(uid, component.GetType());
+        }
+
+        ent.Comp.AddedIncorporealComponents.Clear();
     }
 
-    private void OnElectrocutionAttempt(EntityUid uid, SlasherIncorporealComponent comp, ElectrocutionAttemptEvent args)
+    // Goida as shit.. I couldn't find a better way stop cooldowns
+    private void FreezeCooldowns(Entity<SlasherIncorporealComponent> ent)
     {
-        if (comp.IsIncorporeal)
-            args.Cancel();
+        if (!_net.IsServer)
+            return;
+
+        ent.Comp.FrozenCooldowns.Clear();
+
+        var curTime = _timing.CurTime;
+        foreach (var action in _actions.GetActions(ent.Owner))
+            if (action.Comp.Cooldown is { } cooldown && cooldown.End > curTime)
+            {
+                // Store the remaining cooldown duration
+                var remaining = cooldown.End - curTime;
+                ent.Comp.FrozenCooldowns[action.Owner] = remaining;
+
+                // Make the cooldown basically never end to pause it
+                _actions.SetCooldown(action.Owner, cooldown.Start, TimeSpan.MaxValue);
+
+            }
     }
 
-    private void OnBeforeEmote(EntityUid uid, SlasherIncorporealComponent comp, ref BeforeEmoteEvent args)
+    private void UnfreezeCooldowns(Entity<SlasherIncorporealComponent> ent)
     {
-        if (comp.IsIncorporeal)
-            args.Cancel();
-    }
+        if (!_net.IsServer)
+            return;
 
-    private void OnEmoteAttempt(EntityUid uid, SlasherIncorporealComponent comp, ref EmoteAttemptEvent args)
-    {
-        if (comp.IsIncorporeal)
-            args.Cancel();
-    }
+        var curTime = _timing.CurTime;
+        foreach (var (actionId, remainingTime) in ent.Comp.FrozenCooldowns)
+            _actions.SetCooldown(actionId, curTime, curTime + remainingTime);
 
-    private void OnAttempt(EntityUid uid, SlasherIncorporealComponent comp, CancellableEntityEventArgs args)
-    {
-        if (comp.IsIncorporeal)
-            args.Cancel();
-    }
-
-    private void OnAttackAttempt(EntityUid uid, SlasherIncorporealComponent comp, AttackAttemptEvent args)
-    {
-        if (comp.IsIncorporeal)
-            args.Cancel();
-    }
-
-    private void OnUseAttempt(EntityUid uid, SlasherIncorporealComponent comp, UseAttemptEvent args)
-    {
-        if (comp.IsIncorporeal)
-            args.Cancel();
+        ent.Comp.FrozenCooldowns.Clear();
     }
 
     // Do note that you can grab someone that's in crit or dead and then use incorporealize to drag their body around while invisible but this is hilarious so I'm keeping it
     private void OnPullAttempt(EntityUid uid, SlasherIncorporealComponent comp, PullAttemptEvent args)
     {
-        if (comp.IsIncorporeal)
-            args.Cancelled = true;
-    }
-
-    private void OnGettingAttackedAttempt(EntityUid uid, SlasherIncorporealComponent comp, ref GettingAttackedAttemptEvent args)
-    {
-        if (comp.IsIncorporeal)
-            args.Cancelled = true;
-    }
-
-    private void OnBeforeDamage(EntityUid uid, SlasherIncorporealComponent comp, ref BeforeDamageChangedEvent args)
-    {
-        if (comp.IsIncorporeal)
-            args.Cancelled = true;
-    }
-
-    private void OnBeforeStaminaDamage(EntityUid uid, SlasherIncorporealComponent comp, ref BeforeStaminaDamageEvent args)
-    {
-        if (comp.IsIncorporeal)
+        if (comp.IsIncorporeal
+            && args.PullerUid == uid)
             args.Cancelled = true;
     }
 
@@ -366,27 +393,47 @@ public sealed class SlasherIncorporealSystem : EntitySystem
 
     private void OnDropAttempt(EntityUid uid, SlasherIncorporealComponent comp, DropAttemptEvent args)
     {
-        if (comp.IsIncorporeal)
-            args.Cancel();
-    }
+        if (!comp.IsIncorporeal
+            || HasComp<VirtualItemComponent>(args.Uid))
+            return;
 
-    private void OnGettingInteractedWithAttempt(EntityUid uid, SlasherIncorporealComponent comp, ref GettingInteractedWithAttemptEvent args)
-    {
-        if (comp.IsIncorporeal)
-            args.Cancelled = true;
+        args.Cancel();
     }
 
     private void OnAttemptInteract(EntityUid uid, SlasherIncorporealComponent comp, ref InteractionAttemptEvent args)
     {
-        // Allow self / action usages (target null) so corporealize can still be used
-        if (comp.IsIncorporeal && args.Target != null)
-            args.Cancelled = true;
+        if (!comp.IsIncorporeal
+            || args.Target == null
+            || args.Target == uid)
+            return;
+
+        // Allow them to stop pulling things
+        if (TryComp<PullerComponent>(uid, out var puller)
+            && puller.Pulling == args.Target
+            || HasComp<VirtualItemComponent>(args.Target.Value))
+            return;
+
+        args.Cancelled = true;
     }
 
-    private void OnFootprintLeaveAttempt(EntityUid uid, SlasherIncorporealComponent comp, ref FootprintLeaveAttemptEvent args)
+    private void OnPullStopped(EntityUid uid, SlasherIncorporealComponent comp, PullStoppedMessage args)
     {
-        if (comp.IsIncorporeal)
-            args.Cancel();
+        // Manually clean up virtual items used for pulling if incorporeal
+        if (!comp.IsIncorporeal
+            || !TryComp<HandsComponent>(uid, out var handsComp))
+            return;
+
+        foreach (var hand in handsComp.Hands.Keys)
+        {
+            if (!_hands.TryGetHeldItem((uid, handsComp), hand, out var held))
+                continue;
+
+            if (!TryComp<VirtualItemComponent>(held, out var virtItem)
+                || virtItem.BlockingEntity != args.PulledUid)
+                continue;
+
+            _virtualItem.DeleteVirtualItem((held.Value, virtItem), uid);
+        }
     }
 
     private void OnAnyActionAttempt(Entity<ActionComponent> action, ref ActionAttemptEvent args)
@@ -395,37 +442,108 @@ public sealed class SlasherIncorporealSystem : EntitySystem
         if (!TryComp<SlasherIncorporealComponent>(user, out var comp) || !comp.IsIncorporeal)
             return;
 
-        // Allow only the slasher's "Corporealize" action while incorporeal.
-        if (comp.CorporealizeActionEnt != action.Owner)
+        // Allow nightvision / corporealize / wake up.
+        if (comp.CorporealizeActionEnt == action.Owner
+            || _actions.GetEvent(action.Owner) is ToggleNightVisionEvent or WakeActionEvent)
+            return;
+
+        args.Cancelled = true;
+    }
+
+    private void OnSprintAttempt(EntityUid uid, SlasherIncorporealComponent comp, ref SprintAttemptEvent args)
+    {
+        if (comp.IsIncorporeal)
+            args.Cancel();
+    }
+
+    private void OnDownAttempt(EntityUid uid, SlasherIncorporealComponent comp, DownAttemptEvent args)
+    {
+        if (comp.IsIncorporeal)
+            args.Cancel();
+    }
+
+    private void OnKnockDownAttempt(EntityUid uid, SlasherIncorporealComponent comp, ref KnockDownAttemptEvent args)
+    {
+        if (comp.IsIncorporeal)
             args.Cancelled = true;
     }
 
-    private void OnObserverCheck(EntityUid uid, SlasherIncorporealComponent comp, ref SlasherIncorporealObserverCheckEvent args)
+    private void OnBeforeThrow(Entity<SlasherIncorporealComponent> ent, ref BeforeThrowEvent args)
     {
-        // args.Range may differ from comp.ObserverCheckRange if needed.
-        var checkRange = args.Range;
-        foreach (var other in _lookup.GetEntitiesInRange(uid, checkRange))
+        if (ent.Comp.IsIncorporeal
+            && ent.Owner == args.PlayerUid)
+            args.Cancelled = true;
+    }
+
+    private void OnAttackAttempt(EntityUid uid, SlasherIncorporealComponent comp, AttackAttemptEvent args)
+    {
+        if (comp.IsIncorporeal)
+            args.Cancel();
+    }
+
+
+    private void OnFlashAttempt(EntityUid uid, SlasherIncorporealComponent comp, ref FlashAttemptEvent args)
+    {
+        if (comp.IsIncorporeal)
+            args.Cancelled = true;
+    }
+
+    private void OnStepTriggerAttempt(EntityUid uid, SlasherIncorporealComponent comp, ref StepTriggerAttemptEvent args)
+    {
+        if (comp.IsIncorporeal)
+            args.Cancelled = true;
+    }
+
+    private void OnProximityTriggerAttempt(EntityUid uid, TriggerOnProximityComponent component, ref AttemptTriggerEvent args)
+    {
+        if (args.User == null)
+            return;
+
+        if (TryComp<SlasherIncorporealComponent>(args.User.Value, out var slasherComp) &&
+            slasherComp.IsIncorporeal)
+            args.Cancelled = true;
+    }
+
+    private bool IsInsideSolidObject(EntityUid uid)
+    {
+        if (!TryComp<PhysicsComponent>(uid, out _))
+            return false;
+
+        var slasherTransform = _physics.GetPhysicsTransform(uid);
+        var entities = _lookup.GetEntitiesInRange(uid, 0.5f, LookupFlags.Static | LookupFlags.Dynamic | LookupFlags.Sundries);
+
+        foreach (var entity in entities)
         {
-            if (other == uid || !HasComp<EyeComponent>(other))
+            if (entity == uid)
                 continue;
 
-            if (HasComp<GhostComponent>(other))
+            if (!TryComp<PhysicsComponent>(entity, out var physics))
                 continue;
 
-            if (!HasComp<HumanoidAppearanceComponent>(other))
+            if (!physics.CanCollide || !physics.Hard)
                 continue;
 
-            if (_mobState.IsDead(other))
+            if ((physics.CollisionLayer & (int) CollisionGroup.Impassable) == 0
+                && (physics.CollisionLayer & (int) CollisionGroup.MidImpassable) == 0
+                && (physics.CollisionLayer & (int) CollisionGroup.HighImpassable) == 0
+                && (physics.CollisionLayer & (int) CollisionGroup.TabletopMachineLayer) == 0)
                 continue;
 
-            if (_mobState.IsCritical(other))
+            var entityTransform = _physics.GetPhysicsTransform(entity);
+
+            if (!TryComp<FixturesComponent>(entity, out var fixturesComp))
                 continue;
 
-            if (_interaction.InRangeUnobstructed(other, uid, checkRange, CollisionGroup.Opaque))
+            foreach (var fixture in fixturesComp.Fixtures.Values)
             {
-                args.Cancelled = true;
-                return;
+                if (!fixture.Hard)
+                    continue;
+
+                if (_fixtures.TestPoint(fixture.Shape, entityTransform, slasherTransform.Position))
+                    return true;
             }
         }
+
+        return false;
     }
 }

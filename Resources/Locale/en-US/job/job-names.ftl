@@ -79,9 +79,9 @@ job-name-ertengineer = ERT Engineer
 job-name-ertsecurity = ERT Security
 job-name-ertmedic = ERT Medic
 job-name-ertjanitor = ERT Janitor
-job-name-boxer = Boxer
-job-name-zookeeper = Zookeeper
 job-name-visitor = Visitor
+# Viro
+job-name-virologist = Virologist
 job-name-cluwne = Cluwne
 
 # event-resctricted jobs
@@ -98,7 +98,6 @@ job-name-prisoner = Prisoner
 job-name-roboticist = Roboticist
 job-name-syndicate = Syndicate
 job-name-unknown = Unknown
-job-name-virologist = Virologist
 job-name-zombie = Zombie
 
 # Job titles
@@ -111,7 +110,6 @@ JobAtmosphericTechnician = Atmospheric Technician
 JobBartender = Bartender
 JobBorg = Borg
 JobBotanist = Botanist
-JobBoxer = Boxer
 JobCaptain = Captain
 JobCargoTechnician = Cargo Technician
 JobCentralCommandOfficial = Central Command Official
@@ -158,4 +156,3 @@ JobStationEngineer = Station Engineer
 JobTechnicalAssistant = Technical Assistant
 JobVisitor = Visitor
 JobWarden = Warden
-JobZookeeper = Zookeeper

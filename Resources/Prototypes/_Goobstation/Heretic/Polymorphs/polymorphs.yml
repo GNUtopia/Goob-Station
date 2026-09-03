@@ -1,11 +1,3 @@
-# SPDX-FileCopyrightText: 2024 Piras314 <p1r4s@proton.me>
-# SPDX-FileCopyrightText: 2025 Aiden <28298836+Aidenkrz@users.noreply.github.com>
-# SPDX-FileCopyrightText: 2025 Aiden <aiden@djkraz.com>
-# SPDX-FileCopyrightText: 2025 Aidenkrz <aiden@djkraz.com>
-# SPDX-FileCopyrightText: 2025 Aviu00 <93730715+Aviu00@users.noreply.github.com>
-# SPDX-FileCopyrightText: 2025 username <113782077+whateverusername0@users.noreply.github.com>
-# SPDX-FileCopyrightText: 2025 whateverusername0 <whateveremail>
-#
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 - type: polymorph
@@ -15,6 +7,7 @@
     forced: true
     duration: 3
     attachToGridOrMap: true
+    showPopup: false
 
 - type: polymorph
   id: AshJauntLong
@@ -34,6 +27,21 @@
     revertOnCrit: false
     revertOnDeath: false
 
+- type: polymorph
+  id: VoidPrison
+  configuration:
+    entity: VoidPrison
+    forced: true
+    inventory: None
+    transferName: false
+    transferDamage: false
+    duration: 10
+    polymorphSound: /Audio/_Goobstation/Heretic/voidblink.ogg
+    showPopup: false
+    attachToGridOrMap: true
+    allowRepeatedMorphs: true
+    allowMovement: false
+
 # shapeshifts
 - type: polymorph
   id: ShapeshiftMouse
@@ -44,6 +52,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -55,6 +66,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -66,6 +80,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -77,6 +94,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -88,6 +108,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -99,6 +122,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -110,6 +136,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -121,6 +150,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -132,6 +164,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -143,6 +178,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -154,6 +192,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -165,6 +206,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -176,6 +220,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -187,6 +234,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -198,6 +248,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -209,6 +262,9 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul
 
 - type: polymorph
@@ -220,4 +276,7 @@
     revertOnDeath: true
     skipRevertConfirmation: true
     componentsToTransfer:
+    - component: LanguageKnowledge
+    - component: LanguageSpeaker
+    - component: Grammar
     - component: Ghoul

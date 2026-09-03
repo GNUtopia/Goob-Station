@@ -5,10 +5,10 @@
   playTimeTracker: JobCommandMaid
   requirements:
     - !type:OverallPlaytimeRequirement
-      time: 36000 #10 hrs
+      time: 10h #10 hrs
     - !type:RoleTimeRequirement
       role: JobJanitor
-      time: 3600 #1 hr
+      time: 1h #1 hr
   startingGear: CommandMaidGear
   icon: "JobIconCommandMaid"
   supervisors: job-supervisors-command
@@ -26,19 +26,24 @@
 - type: startingGear
   id: CommandMaidGear
   equipment:
-    jumpsuit: ClothingUniformJumpskirtJanimaid
+    jumpsuit: ClothingUniformJumpskirtCommandMaid
     id: CommandMaidPDA
-    gloves: ClothingHandsGlovesJanitor
+    gloves: ClothingHandsGlovesLatex
     ears: ClothingHeadsetCommandService
+    eyes: ClothingEyesGlassesCommand
     belt: ClothingBeltJanitorFilled
-    shoes: ClothingShoesGaloshes
+    shoes: ClothingShoesBootsJackGaloshes
+  inhand:
+  - AdvMopItem
 
 - type: chameleonOutfit
   id: CommandMaidChameleonOutfit
   job: CommandMaid
   equipment:
-    jumpsuit: ClothingUniformJumpskirtJanimaid
+    jumpsuit: ClothingUniformJumpskirtCommandMaid
     id: CommandMaidPDA
-    gloves: ClothingHandsGlovesJanitor
+    gloves: ClothingHandsGlovesLatex
     ears: ClothingHeadsetCommandService
-    shoes: ClothingShoesGaloshes
+    eyes: ClothingEyesGlassesCommand
+    belt: ClothingBeltJanitor
+    shoes: ClothingShoesBootsJackGaloshes

@@ -66,13 +66,16 @@ public abstract class SharedBoostedImmunitySystem : EntitySystem
         if (ent.Comp.RemoveAlienEmbryo)
             RemoveAlienEmbryo(ent);
 
+        if (ent.Comp.RemoveDiseases)
+            RemoveDiseases(ent);
+
         Cycle(ent);
     }
 
     private void OnRemoved(Entity<BoostedImmunityComponent> ent, ref ComponentRemove args)
     {
         if (ent.Comp.AlertId != null)
-            _alerts.ClearAlert(ent, (ProtoId<AlertPrototype>) ent.Comp.AlertId); // incase there was still time left on removal
+            _alerts.ClearAlert(ent.Owner, (ProtoId<AlertPrototype>) ent.Comp.AlertId); // incase there was still time left on removal
     }
 
     public override void Update(float frameTime)
@@ -114,7 +117,7 @@ public abstract class SharedBoostedImmunitySystem : EntitySystem
         }
 
         if (ent.Comp.CleanseChemicals)
-            _bloodSys.FlushChemicals(ent.Owner, null, ent.Comp.CleanseChemicalsAmount);
+            _bloodSys.FlushChemicals(ent.Owner, ent.Comp.CleanseChemicalsAmount, null);
 
         HealDamage(ent);
     }
@@ -215,6 +218,11 @@ public abstract class SharedBoostedImmunitySystem : EntitySystem
     }
 
     protected virtual void RemoveAlienEmbryo(Entity<BoostedImmunityComponent> ent)
+    {
+        // go to BoostedImmunitySystem for the logic
+    }
+
+    protected virtual void RemoveDiseases(Entity<BoostedImmunityComponent> ent)
     {
         // go to BoostedImmunitySystem for the logic
     }
